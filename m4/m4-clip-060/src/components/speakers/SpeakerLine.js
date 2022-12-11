@@ -1,12 +1,9 @@
+import { useState } from "react";
 import FavoriteSpeakerToggleLine from "./FavoriteSpeakerToggleLine";
 import SpeakerImageToggleOnScroll from "./SpeakerImageToggleOnScroll";
 
-const SpeakerLine = ({
-  speakerRec,
-  toggleFavoriteSpeaker,
-  updating,
-  highlight,
-}) => {
+const SpeakerLine = ({ speakerRec, speakerService, updating, highlight }) => {
+  // console.log("SpeakerLine: ", speakerRec.lastName, speakerRec.favorite);
   return (
     <div className="col-xl-12 col-md-12">
       <div className="card border-0 speaker-list">
@@ -38,7 +35,12 @@ const SpeakerLine = ({
                   <div className="spinner-bottom">
                     <FavoriteSpeakerToggleLine
                       speakerRec={speakerRec}
-                      toggleFavoriteSpeaker={toggleFavoriteSpeaker}
+                      toggleFavoriteSpeaker={() => {
+                        speakerService.update({
+                          ...speakerRec,
+                          favorite: !speakerRec.favorite,
+                        });
+                      }}
                     >
                       {updating ? (
                         <i className="spinner-border text-dark" role="status" />

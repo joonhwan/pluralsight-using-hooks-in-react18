@@ -1,21 +1,11 @@
 import SpeakerLine from "./SpeakerLine";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect } from "react";
+// import useSpeakersDataService from "../../hooks/useSpeakers";
+import useSpeakersDataService from "../../hooks/useImmerSpeakers";
 
-function List({ speakers, updateSpeaker }) {
-  const [updatingId, setUpdatingId] = useState(0);
+function List({ speakersState, speakersService }) {
   const isPending = false;
-
-  function toggleFavoriteSpeaker(speakerRec) {
-    const speakerRecUpdated = { ...speakerRec, favorite: !speakerRec.favorite };
-    updateSpeaker(speakerRecUpdated);
-    async function updateAsync(rec) {
-      setUpdatingId(rec.id);
-      await axios.put(`/api/speakers/${rec.id}`, speakerRecUpdated);
-      setUpdatingId(0);
-    }
-    updateAsync(speakerRecUpdated);
-  }
+  const speakers = speakersState.speakers;
 
   return (
     <div className="container">
@@ -45,14 +35,14 @@ function List({ speakers, updateSpeaker }) {
       </div>
 
       <div className="row g-3">
-        {speakers.map(function (speakerRec) {
+        {speakers.map(function (speaker) {
           const highlight = false;
           return (
             <SpeakerLine
-              key={speakerRec.id}
-              speakerRec={speakerRec}
-              updating={updatingId === speakerRec.id ? updatingId : 0}
-              toggleFavoriteSpeaker={() => toggleFavoriteSpeaker(speakerRec)}
+              key={speaker.id}
+              speakerRec={speaker}
+              speakerService={speakersService}
+              updating={speaker.isUpdating}
               highlight={highlight}
             />
           );
@@ -64,31 +54,19 @@ function List({ speakers, updateSpeaker }) {
 
 const SpeakerList = () => {
   const darkTheme = false;
-  const [speakers, setSpeakers] = useState([]);
-  const [loading, setLoading] = useState(true);
+
+  const [state, service] = useSpeakersDataService();
 
   useEffect(() => {
-    async function getDataAsync() {
-      setLoading(true);
-      const results = await axios.get("/api/speakers");
-      setSpeakers(results.data);
-      setLoading(false);
-    }
-    getDataAsync();
+    service.load();
   }, []);
 
-  function updateSpeaker(speakerRec) {
-    const speakerUpdated = speakers.map(function (rec) {
-      return speakerRec.id === rec.id ? speakerRec : rec;
-    });
-    setSpeakers(speakerUpdated);
-  }
-
-  if (loading) return <div>Loading...</div>;
+  if (state.isLoading) return <div>Loading...</div>;
 
   return (
     <div className={darkTheme ? "theme-dark" : "theme-light"}>
-      <List speakers={speakers} updateSpeaker={updateSpeaker} />
+      {/* <List speakers={state.speakers} updateSpeaker={service.update} /> */}
+      <List speakersState={state} speakersService={service} />
     </div>
   );
 };
