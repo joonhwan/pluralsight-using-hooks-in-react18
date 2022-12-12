@@ -1,6 +1,9 @@
+import { useState } from "react";
+import { useSpeakersRepositoryContext } from "../contexts/SpeakersRepositoryContext";
+
 export default function FavoriteSpeakerToggle({ speakerRec }) {
-  const { updateSpeaker } = { updateSpeaker: () => {} };
-  const [updating, setUpdating] = [false, () => {}];
+  const repository = useSpeakersRepositoryContext();
+  const [updating, setUpdating] = useState(false);
 
   return (
     <button
@@ -9,12 +12,13 @@ export default function FavoriteSpeakerToggle({ speakerRec }) {
       }
       onClick={(e) => {
         e.preventDefault();
-        const newSpeakerRec = {
+        const updated = {
           ...speakerRec,
           favorite: !speakerRec.favorite,
         };
         setUpdating(true);
-        updateSpeaker(newSpeakerRec, () => {
+        repository.updateItem(updated, () => {
+          console.log("update speaker done!");
           setUpdating(false);
         });
       }}

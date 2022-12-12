@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { createContext, useContext } from "react";
 import useTheme from "../hooks/useTheme";
 
 export const ThemeContext = createContext({});
@@ -9,4 +9,8 @@ export const ThemeProvider = ({ children }) => {
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
+};
+
+export const useThemeContext = () => {
+  return useContext(ThemeContext);
 };

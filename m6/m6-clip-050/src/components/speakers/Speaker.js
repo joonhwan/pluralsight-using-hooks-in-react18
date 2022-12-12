@@ -1,11 +1,16 @@
 import { useContext } from "react";
+import { useSpeakersRepositoryContext } from "../contexts/SpeakersRepositoryContext";
 import { ThemeContext } from "../contexts/ThemeContext";
 import SpeakerDetail from "./SpeakerDetail";
-import { speakerList } from "../../../speakersData";
 
 export default function Speaker({ id }) {
   const { darkTheme } = useContext(ThemeContext);
-  const speakerRec = speakerList?.find((rec) => rec.id === id);
+  const repository = useSpeakersRepositoryContext();
+
+  if (repository.isLoading()) {
+    return <div>loading..</div>;
+  }
+  const speakerRec = repository.items.find((_) => _.id === id);
 
   return speakerRec ? (
     <div className={darkTheme ? "theme-dark" : "theme-light"}>

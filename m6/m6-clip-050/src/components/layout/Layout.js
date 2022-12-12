@@ -6,6 +6,7 @@ import About from "../about/About";
 import Speaker from "../speakers/Speaker";
 import SpeakerList from "../speakers/SpeakerList";
 import { ThemeProvider } from "../contexts/ThemeContext";
+import { SpeakersRepositoryProvider } from "../contexts/SpeakersRepositoryContext";
 
 // Layout does not use children but instead uses what comes from AppRouteProvider
 export default function Layout({ url }) {
@@ -13,13 +14,15 @@ export default function Layout({ url }) {
 
   return (
     <ThemeProvider>
-      <Header />
-      <AppMenu />
-      {url === "/about" && <About />}
-      {url === "/" && <Speakers />}
-      {url.startsWith("/speaker/") && <Speaker id={speakerId} />}
-      {url.startsWith("/speakerlist") && <SpeakerList />}
-      {url.startsWith("/speakerpopup") && <SpeakerModal modalShow={true} />}
+      <SpeakersRepositoryProvider>
+        <Header />
+        <AppMenu />
+        {url === "/about" && <About />}
+        {url === "/" && <Speakers />}
+        {url.startsWith("/speaker/") && <Speaker id={speakerId} />}
+        {url.startsWith("/speakerlist") && <SpeakerList />}
+        {url.startsWith("/speakerpopup") && <SpeakerModal modalShow={true} />}
+      </SpeakersRepositoryProvider>
     </ThemeProvider>
   );
 }

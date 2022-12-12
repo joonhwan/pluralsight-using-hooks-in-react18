@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useSpeakersFilterContext } from "../contexts/SpeakersFilterContext";
 
 export default function SpeakerImageToggleOnScroll({
   imageUrl,
@@ -8,6 +9,11 @@ export default function SpeakerImageToggleOnScroll({
   const [inView, setInView] = useState(false);
   const imageRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
+  const {
+    speakingSaturday,
+    speakingSunday,
+    searchText,
+  } = useSpeakersFilterContext();
 
   function scrollHandler() {
     setInView(isInView());
@@ -20,7 +26,7 @@ export default function SpeakerImageToggleOnScroll({
     return () => {
       window.removeEventListener("scroll", scrollHandler);
     };
-  }, []);
+  }, [speakingSaturday, speakingSunday, searchText]);
 
   function isInView() {
     const rect = imageRef.current.getBoundingClientRect();

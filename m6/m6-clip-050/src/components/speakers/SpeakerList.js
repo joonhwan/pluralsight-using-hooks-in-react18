@@ -1,25 +1,23 @@
 import SpeakerLine from "./SpeakerLine";
 import { useContext, useEffect, useReducer, useState } from "react";
 import { ThemeContext } from "../contexts/ThemeContext";
-import axios from "axios";
+import useSpeakerRepository from "../hooks/useSpeakersRepository";
+import { useSpeakersRepositoryContext } from "../contexts/SpeakersRepositoryContext";
 
-function List({ state, dispatch }) {
+function List({ repository }) {
   const [updatingId, setUpdatingId] = useState(0);
   const isPending = false;
-  const speakers = state.speakers;
+  const speakers = repository.items;
 
   function toggleFavoriteSpeaker(speakerRec) {
     const speakerRecUpdated = {
       ...speakerRec,
       favorite: !speakerRec.favorite,
     };
-    dispatch({ type: "updateSpeaker", speaker: speakerRecUpdated });
-    async function updateAsync(rec) {
-      setUpdatingId(rec.id);
-      await axios.put(`/api/speakers/${rec.id}`, speakerRecUpdated);
+    setUpdatingId(speakerRec.id);
+    repository.updateItem(speakerRecUpdated, () => {
       setUpdatingId(0);
-    }
-    updateAsync(speakerRecUpdated);
+    });
   }
 
   return (
@@ -50,18 +48,19 @@ function List({ state, dispatch }) {
       </div>
 
       <div className="row g-3">
-        {speakers.map(function (speakerRec) {
-          const highlight = false;
-          return (
-            <SpeakerLine
-              key={speakerRec.id}
-              speakerRec={speakerRec}
-              updating={updatingId === speakerRec.id ? updatingId : 0}
-              toggleFavoriteSpeaker={() => toggleFavoriteSpeaker(speakerRec)}
-              highlight={highlight}
-            />
-          );
-        })}
+        {speakers &&
+          speakers.map(function (speakerRec) {
+            const highlight = false;
+            return (
+              <SpeakerLine
+                key={speakerRec.id}
+                speakerRec={speakerRec}
+                updating={updatingId === speakerRec.id ? updatingId : 0}
+                toggleFavoriteSpeaker={() => toggleFavoriteSpeaker(speakerRec)}
+                highlight={highlight}
+              />
+            );
+          })}
       </div>
     </div>
   );
@@ -69,51 +68,13 @@ function List({ state, dispatch }) {
 
 const SpeakerList = () => {
   const { darkTheme } = useContext(ThemeContext);
+  const repository = useSpeakersRepositoryContext();
 
-  function reducer(state, action) {
-    switch (action.type) {
-      case "speakersLoaded":
-        return { ...state, loading: false, speakers: action.speakers };
-      case "setLoadingStatus":
-        return { ...state, loading: true };
-      case "updateSpeaker":
-        const speakersUpdated = state.speakers.map((rec) =>
-          action.speaker.id === rec.id ? action.speaker : rec
-        );
-        return { ...state, speakers: speakersUpdated };
-      default:
-        throw new Error(`case failure.  type: ${action.type}`);
-    }
-  }
-
-  const initialState = {
-    speakers: [],
-    loading: true,
-    updateItem: () => {},
-  };
-  const [state, dispatch] = useReducer(reducer, initialState);
-
-  useEffect(() => {
-    async function getDataAsync() {
-      dispatch({ type: "setLoadingStatus" });
-      const results = await axios.get("/api/speakers");
-      dispatch({ type: "speakersLoaded", speakers: results.data });
-    }
-    getDataAsync();
-  }, []);
-
-  function updateSpeaker(speakerRec) {
-    const speakerUpdated = speakers.map(function (rec) {
-      return speakerRec.id === rec.id ? speakerRec : rec;
-    });
-    setSpeakers(speakerUpdated);
-  }
-
-  if (state.loading) return <div>Loading...</div>;
+  if (repository.isLoading()) return <div>Loading...</div>;
 
   return (
     <div className={darkTheme ? "theme-dark" : "theme-light"}>
-      <List state={state} dispatch={dispatch} />
+      <List repository={repository} />
     </div>
   );
 };

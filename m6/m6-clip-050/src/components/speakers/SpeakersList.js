@@ -1,10 +1,14 @@
 import React from "react";
 import SpeakerDetail from "./SpeakerDetail";
+import { useSpeakersRepositoryContext } from "../contexts/SpeakersRepositoryContext";
+import { useSpeakersFilterContext } from "../contexts/SpeakersFilterContext";
 
-export default function SpeakersList({ speakerList }) {
+export default function SpeakersList() {
+  const repository = useSpeakersRepositoryContext();
+  const { applySortFilter } = useSpeakersFilterContext();
   return (
     <>
-      {speakerList.map(function (speakerRec) {
+      {applySortFilter(repository.items).map(function (speakerRec) {
         return (
           <SpeakerDetail
             key={speakerRec.id}

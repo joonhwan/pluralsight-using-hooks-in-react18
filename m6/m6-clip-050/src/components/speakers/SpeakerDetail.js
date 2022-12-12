@@ -9,6 +9,7 @@ export default function SpeakerDetail({ speakerRec, showDetails }) {
       window.location.href = route;
     },
   };
+
   return (
     <>
       <div className="col-xl-6 col-md-12">
